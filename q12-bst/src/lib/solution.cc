@@ -2,6 +2,86 @@
 
  
 
+/******************** BEGIN HOMEWORK 5 FUNCTIONS ********************/
+
+// Runtime = &theta;(3 + 6*(n + 2*(n-1))) --> O(n)
+std::vector<int> BST::vect_in_order()
+{
+    std::vector<int> result = {};
+    std::stack<TreeNode*> order_stack;
+
+    if (this->root_ != nullptr)
+    {
+        TreeNode* node = this->root_;
+
+        // only stop if node is nullptr and no nodes are left to backtrack to
+        while (node != nullptr || order_stack.empty() == false)
+        {
+            // go down left subtree
+            while (node != nullptr)
+            {
+                order_stack.push(node);
+                node = node->left;
+            }
+
+            // backtrack to last node on stack because we've gone over
+            node = order_stack.top();
+            // add this node->val to result vector
+            result.push_back(node->val);
+            // pop backtrack node from stack
+            order_stack.pop();
+
+            // pursue right side this backtrack node
+            // note: this will skip to next node on stack if node->right is null
+            node = node->right; 
+        }
+    }
+
+    return result;
+}
+
+void build_in_order(TreeNode* node, std::vector<int>& v)
+{
+    if (node != nullptr)
+    {
+        build_in_order(node->left, v);
+        v.push_back(node->val);
+        build_in_order(node->right, v);
+    }
+}
+
+// Runtime = &theta;(2 + 2*(n + 2*(n-1))) --> O(n)
+std::vector<int> BST::vect_in_order_recursive()
+{
+    std::vector<int> result = {};
+
+    if (this->root_ != nullptr)
+    {
+        build_in_order(this->root_, result);
+    }
+
+    return result;
+}
+
+
+int height_recurse(TreeNode* node) 
+{
+    int result = 0;
+    if (node != nullptr)
+    {
+        result = 1 + std::max(height_recurse(node->left), height_recurse(node->right));
+    }
+    return result;
+}
+
+// Runtime = &theta;(3 + 2*H), where H &isin;[log(n), n] --> O(n)
+int BST::height() 
+{
+    return height_recurse(this->root_);
+}
+
+/******************** END HOMEWORK 5 FUNCTIONS ********************/
+
 TreeNode* find_helper(TreeNode* node, int key)
 {
     TreeNode* result = node;
@@ -156,83 +236,8 @@ void BST::print_in_order()
     {
         printf("BST empty. Nothing to print.\n");
     }
-    
 }
 
-std::vector<int> BST::vect_in_order()
-{
-    std::vector<int> result = {};
-    std::stack<TreeNode*> order_stack;
-
-    if (this->root_ != nullptr)
-    {
-        TreeNode* node = this->root_;
-
-        // only stop if node is nullptr and no nodes are left to backtrack to
-        while (node != nullptr || order_stack.empty() == false)
-        {
-            // go down left subtree
-            while (node != nullptr)
-            {
-                order_stack.push(node);
-                node = node->left;
-            }
-
-            // backtrack to last node on stack because we've gone over
-            node = order_stack.top();
-            // add this node->val to result vector
-            result.push_back(node->val);
-            // pop backtrack node from stack
-            order_stack.pop();
-
-            // pursue right side this backtrack node
-            // note: this will skip to next node on stack if node->right is null
-            node = node->right; 
-        }
-    }
-
-    return result;
-}
-
-void build_in_order(TreeNode* node, std::vector<int>& v)
-{
-    if (node != nullptr)
-    {
-        build_in_order(node->left, v);
-        v.push_back(node->val);
-        build_in_order(node->right, v);
-    }
-}
-
-std::vector<int> BST::vect_in_order_recursive()
-{
-    std::vector<int> result = {};
-
-    if (this->root_ != nullptr)
-    {
-        build_in_order(this->root_, result);
-    }
-
-    return result;
-}
-
-/************************ Problem 4 ************************/
-
-// Runtime = &theta;(3 + 2*H), where H &isin;[log(n), n] --> O(n)
-int height_recurse(TreeNode* node) 
-{
-    int result = 0;
-    if (node != nullptr)
-    {
-        result = 1 + std::max(height_recurse(node->left), height_recurse(node->right));
-    }
-    return result;
-}
-
-int BST::height() 
-{
-    return height_recurse(this->root_);
-}
 
 // Runtime = &theta;(3 + 2*HH), where HH &isin;[log(n)^2, n*log(n)] --> O(n*log(n))
 void build_queue(TreeNode* node, std::queue<TreeNode*>& q_nodes, int height, int current_level)
@@ -260,7 +265,7 @@ void BST::print_by_level()
 {
     if (this->root_ != nullptr)
     {
-        int h = height_recurse(this->root_);
+        int h = this->height();
         std::queue<TreeNode*> q;
 
         build_queue(this->root_, q, h, 0);
